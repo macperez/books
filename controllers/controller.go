@@ -53,7 +53,10 @@ func CreateNewBook(w http.ResponseWriter, r *http.Request) {
 	fmt.Fprintf(w, "%+v", string(reqBody))
 	var book models.Book
 	json.Unmarshal(reqBody, &book)
-	models.InsertBook(book)
+	err := models.InsertBook(book)
+	if err != nil {
+		fmt.Print(err)
+	}
 	//GetBooks(w, r)
 
 }

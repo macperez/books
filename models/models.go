@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 )
 
@@ -47,26 +48,27 @@ func GetAuthors() []Author {
 
 // InsertAuthor insert a new author in DB
 func InsertAuthor(author Author) {
-	GetDB().Create(author)
+	GetDB().Create(&author)
 }
 
 // InsertBook insert a new author in DB
-func InsertBook(book Book) {
+func InsertBook(book Book) error {
 	db := GetDB()
-	fmt.Printf("\n%+v\n", book)
+	// var err error
 	if book.Author == (Author{}) {
-		fmt.Println("NULO")
-	} else {
-		authorTemp := book.Author
-		var author Author
-		db.Where("firstname = ? AND lastname = ?", authorTemp.Firstname,
-			authorTemp.Lastname).First(&author)
-		book.Author = author
-		fmt.Println(author)
-		db.Create(book)
-
+		return errors.New("no author provided")
 	}
-
+	authorTemp := book.Author
+	var author Author
+	db.Where("firstname = ? AND lastname = ?", authorTemp.Firstname,
+		authorTemp.Lastname).First(&author)
+	fmt.Println(author)
+	if author == (Author{}) {
+		return errors.New("author does not exist")
+	}
+	book.Author = author
+	db.Create(&book)
+	return nil
 	// GetDB().Create(book)
 }
 
