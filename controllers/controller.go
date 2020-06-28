@@ -2,10 +2,12 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
+	"io/ioutil"
 
 	"net/http"
 
-	"github.com/macperez/binovoo/models"
+	"github.com/macperez/books/models"
 )
 
 func message(status bool, message string) map[string]interface{} {
@@ -31,4 +33,27 @@ func GetAuthors(w http.ResponseWriter, r *http.Request) {
 	resp := message(true, "success")
 	resp["authors"] = data
 	respond(w, resp)
+}
+
+// CreateNewAuthor calls the model to create one author in database
+func CreateNewAuthor(w http.ResponseWriter, r *http.Request) {
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	var author models.Author
+	json.Unmarshal(reqBody, &author)
+	models.InsertAuthor(author)
+	GetAuthors(w, r)
+
+}
+
+// CreateNewBook calls the model to create one book in database
+func CreateNewBook(w http.ResponseWriter, r *http.Request) {
+
+	reqBody, _ := ioutil.ReadAll(r.Body)
+	fmt.Fprintf(w, "%+v", string(reqBody))
+	var book models.Book
+	json.Unmarshal(reqBody, &book)
+	models.InsertBook(book)
+	//GetBooks(w, r)
+
 }
