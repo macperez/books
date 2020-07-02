@@ -45,17 +45,23 @@ func GetAuthors() []Author {
 }
 
 // GetAuthor return an Author given its id
-func GetAuthor(id int) Author {
-	author := Author{}
+func GetAuthor(id int) (Author, error) {
+	var author Author
 	GetDB().Find(&author, id)
-	return author
+	if author == (Author{}) {
+		return author, errors.New("no_author_found")
+	}
+	return author, nil
 }
 
 // GetBook return an Author given its ISBN
-func GetBook(id int) Book {
+func GetBook(id int) (Book, error) {
 	var book Book
 	GetDB().Preload("Author").Find(&book, id)
-	return book
+	if book == (Book{}) {
+		return book, errors.New("no_book_found")
+	}
+	return book, nil
 }
 
 // InsertAuthor insert a new author in DB

@@ -41,20 +41,33 @@ func GetAuthors(w http.ResponseWriter, r *http.Request) {
 func GetAuthor(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	data := models.GetAuthor(id)
-	resp := message(true, "success")
-	resp["author"] = data
-	respond(w, resp)
+	data, err := models.GetAuthor(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - Author not in database\n"))
+
+	} else {
+		resp := message(true, "success")
+		resp["author"] = data
+		respond(w, resp)
+	}
+
 }
 
 // GetBook calls the model to bring one specific book
 func GetBook(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	id, _ := strconv.Atoi(vars["id"])
-	data := models.GetBook(id)
-	resp := message(true, "success")
-	resp["book"] = data
-	respond(w, resp)
+	data, err := models.GetBook(id)
+	if err != nil {
+		w.WriteHeader(http.StatusNotFound)
+		w.Write([]byte("404 - Book not in database\n"))
+
+	} else {
+		resp := message(true, "success")
+		resp["book"] = data
+		respond(w, resp)
+	}
 }
 
 // CreateNewAuthor calls the model to create one author in database
