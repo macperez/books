@@ -4,8 +4,10 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/jinzhu/gorm"
+	// Uses some dialects to deal with mariadb
 	_ "github.com/jinzhu/gorm/dialects/mysql"
+
+	"github.com/jinzhu/gorm"
 	"github.com/joho/godotenv"
 )
 

@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"strconv"
 
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/macperez/books/models"
 )
 
@@ -35,6 +37,26 @@ func GetAuthors(w http.ResponseWriter, r *http.Request) {
 	respond(w, resp)
 }
 
+// GetAuthor calls the model to bring one specific author
+func GetAuthor(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	data := models.GetAuthor(id)
+	resp := message(true, "success")
+	resp["author"] = data
+	respond(w, resp)
+}
+
+// GetBook calls the model to bring one specific book
+func GetBook(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	id, _ := strconv.Atoi(vars["id"])
+	data := models.GetBook(id)
+	resp := message(true, "success")
+	resp["book"] = data
+	respond(w, resp)
+}
+
 // CreateNewAuthor calls the model to create one author in database
 func CreateNewAuthor(w http.ResponseWriter, r *http.Request) {
 
@@ -48,15 +70,25 @@ func CreateNewAuthor(w http.ResponseWriter, r *http.Request) {
 
 // CreateNewBook calls the model to create one book in database
 func CreateNewBook(w http.ResponseWriter, r *http.Request) {
-
 	reqBody, _ := ioutil.ReadAll(r.Body)
 	fmt.Fprintf(w, "%+v", string(reqBody))
 	var book models.Book
 	json.Unmarshal(reqBody, &book)
 	err := models.InsertBook(book)
 	if err != nil {
-		fmt.Print(err)
+		switch err.Error() {
+		case "author_does_not_exist":
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("404 - Author not in database\n"))
+		case "no_author_provided":
+			w.WriteHeader(http.StatusBadRequest)
+			w.Write([]byte("400 - No Author provided\n"))
+		default:
+			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 - Internal server error"))
+		}
 	}
-	//GetBooks(w, r)
+
+	GetBooks(w, r)
 
 }
